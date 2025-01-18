@@ -2,15 +2,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // Getting elements
   const sendButton = document.getElementById('send-button');
   const userInput = document.getElementById('user-input');
-  const chatMessages = document.getElementById('chat-messages');
+  const chatMessages = document.getElementById('chat-messages'); // This should now correctly point to the chat-messages div
 
   // Function to display messages
   function displayMessage(message, isUser = false) {
     const messageDiv = document.createElement('div');
     messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
     messageDiv.textContent = message;
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    chatMessages.appendChild(messageDiv); // Append message to chat-messages div
+    chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to the latest message
   }
 
   // Function to fetch response from OpenAI API
