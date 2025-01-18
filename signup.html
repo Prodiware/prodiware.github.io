@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signup - Prodiware</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Prodiware - Signup</h1>
+  </header>
+  <main>
+    <div id="signup-container">
+      <h2>Create an Account</h2>
+      <input type="email" id="signup-email" placeholder="Email" required>
+      <input type="password" id="signup-password" placeholder="Password" required>
+      <button id="signup-button">Signup</button>
+      <p>Already have an account? <a href="login.html">Login here</a>.</p>
+      <div id="status-message"></div>
+    </div>
+  </main>
+  <footer>
+    <p>&copy; 2025 Prodiware. All rights reserved.</p>
+  </footer>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyA4TdcrxXfBkT-Tv-X7vGhsSu85F5BKT6U",
+      authDomain: "prodiware.firebaseapp.com",
+      projectId: "prodiware",
+      storageBucket: "prodiware.firebasestorage.app",
+      messagingSenderId: "349679639612",
+      appId: "1:349679639612:web:a928441b9831e9c3b2b739",
+      measurementId: "G-WFW5RB1Y86"
+    };
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const signupButton = document.getElementById('signup-button');
+    const emailField = document.getElementById('signup-email');
+    const passwordField = document.getElementById('signup-password');
+    const statusMessage = document.getElementById('status-message');
+
+    signupButton.addEventListener('click', () => {
+      const email = emailField.value;
+      const password = passwordField.value;
+
+      createUserWithEmailAndPassword(auth, email, password)
+        .then(() => {
+          statusMessage.textContent = 'Signup successful!';
+          statusMessage.style.color = 'green';
+        })
+        .catch((error) => {
+          statusMessage.textContent = `Error: ${error.message}`;
+          statusMessage.style.color = 'red';
+        });
+    });
+  </script>
+</body>
+</html>
