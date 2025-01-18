@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profile - Prodiware</title>
   <link rel="stylesheet" href="styles.css">
+  <script type="module" src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js"></script>
+  <script type="module" src="https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js"></script>
+  <script type="module" src="profile.js" defer></script>
 </head>
 <body>
   <header>
@@ -12,83 +15,13 @@
   </header>
   <main>
     <div id="profile-container">
-      <h2 id="welcome-message"></h2>
-
-      <!-- Login and Signup buttons (hidden if logged in) -->
-      <div id="auth-buttons">
-        <button id="login-button">Login</button>
-        <button id="signup-button">Signup</button>
-      </div>
-
-      <!-- Logout button (hidden if not logged in) -->
-      <div id="logout-container" style="display: none;">
-        <button id="logout-button" style="background-color: red; color: white;">Logout</button>
-      </div>
+      <h2>Welcome, <span id="username"></span></h2>
+      <p id="email"></p>
+      <button id="logout-button">Logout</button>
     </div>
   </main>
   <footer>
     <p>&copy; 2025 Prodiware. All rights reserved.</p>
   </footer>
-
-  <script type="module">
-    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js";
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
-
-    // Firebase Configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyA4TdcrxXfBkT-Tv-X7vGhsSu85F5BKT6U",
-      authDomain: "prodiware.firebaseapp.com",
-      projectId: "prodiware",
-      storageBucket: "prodiware.firebasestorage.app",
-      messagingSenderId: "349679639612",
-      appId: "1:349679639612:web:a928441b9831e9c3b2b739",
-      measurementId: "G-WFW5RB1Y86"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    
-    const welcomeMessage = document.getElementById('welcome-message');
-    const authButtons = document.getElementById('auth-buttons');
-    const logoutContainer = document.getElementById('logout-container');
-    const loginButton = document.getElementById('login-button');
-    const signupButton = document.getElementById('signup-button');
-    const logoutButton = document.getElementById('logout-button');
-
-    // Check if user is logged in
-    const user = auth.currentUser;
-
-    if (user) {
-      // Show "Hi, username" and logout button
-      welcomeMessage.textContent = `Hi, ${user.email}`;
-      authButtons.style.display = 'none'; // Hide login/signup buttons
-      logoutContainer.style.display = 'block'; // Show logout button
-    } else {
-      // Show login/signup buttons
-      welcomeMessage.textContent = 'You are not logged in.';
-      authButtons.style.display = 'block'; // Show login/signup buttons
-      logoutContainer.style.display = 'none'; // Hide logout button
-    }
-
-    // Logout functionality
-    logoutButton.addEventListener('click', () => {
-      signOut(auth).then(() => {
-        // Redirect to login page after logout
-        window.location.href = "login.html";
-      }).catch((error) => {
-        console.error("Error signing out: ", error);
-      });
-    });
-
-    // Redirect to login and signup pages
-    loginButton.addEventListener('click', () => {
-      window.location.href = "login.html";
-    });
-
-    signupButton.addEventListener('click', () => {
-      window.location.href = "signup.html";
-    });
-  </script>
 </body>
 </html>
