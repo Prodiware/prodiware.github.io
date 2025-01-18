@@ -30,10 +30,8 @@ loginButton.addEventListener('click', () => {
   if (email && password) {
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
-        statusMessage.textContent = 'Login successful!';
-        statusMessage.style.color = 'green';
-        // Optionally, redirect to the home page after login
-        // window.location.href = 'index.html';
+        // Login successful, redirect to profile page
+        window.location.href = "profile.html";  // Update this URL to your actual profile page
       })
       .catch((error) => {
         statusMessage.textContent = `Error: ${error.message}`;
