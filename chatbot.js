@@ -1,5 +1,5 @@
 // Replace with your actual OpenAI API key
-const apiKey = "sk-opHSYKei7HpBE5-ZAjK37pVtWPp2LMFJgQ_yZooL1kxSSyKDf16VJrCwjxjflRr6uWWz8K32DAT3BlbkFJGkHHkduhvrZeLAfMnlizof02687UotdO5IFxErhju_PQZol_nXYb9tvADkgpt59eAp8ogAW1YA"; // Replace with your OpenAI API key
+const apiKey = "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"; // Replace with your OpenAI API key
 const endpoint = "https://api.openai.com/v1/chat/completions";
 
 // Function to display messages in the chat area
