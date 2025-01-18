@@ -1,61 +1,76 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // Getting elements
   const sendButton = document.getElementById('send-button');
   const userInput = document.getElementById('user-input');
-  const chatMessages = document.getElementById('chat-messages');
+  const chatMessages = document.getElementById('chat-area');
 
-  // Check if elements are found
-  console.log("Send Button:", sendButton);
-  console.log("User Input:", userInput);
-  console.log("Chat Messages Container:", chatMessages);
-
+  // Function to display messages
   function displayMessage(message, isUser = false) {
-    const messageDiv = document.createElement('div');
+    const messageDiv = document.createElement('p');
     messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
     messageDiv.textContent = message;
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
-    console.log("Message displayed:", message);
   }
 
-  function sendMessage() {
+  // Function to handle sending a message
+  async function sendMessage() {
     const message = userInput.value.trim();
-    console.log("User typed:", message);
 
     if (message === '') return; // Don't send if input is empty
 
+    // Display user message
     displayMessage(`You: ${message}`, true);
 
-    setTimeout(() => {
-      const botResponse = generateBotResponse(message);
-      displayMessage(`Bot: ${botResponse}`);
-    }, 1000);
-
+    // Clear input field
     userInput.value = '';
+
+    // Fetch AI response
+    try {
+      const botResponse = await generateBotResponse(message);
+      displayMessage(`Bot: ${botResponse}`);
+    } catch (error) {
+      console.error('Error fetching AI response:', error);
+      displayMessage('Bot: Oops! Something went wrong.');
+    }
   }
 
-  function generateBotResponse(userMessage) {
-    const lowerCaseMessage = userMessage.toLowerCase();
-    const responses = {
-      'hello': 'Hi there! How can I assist you today?',
-      'how are you': 'I am doing great, thank you for asking!',
-      'bye': 'Goodbye! Have a great day!',
-    };
+  // Function to fetch AI response
+  async function generateBotResponse(userMessage) {
+    const apiKey = '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'; // Replace with your OpenAI API key
+    const apiUrl = 'https://api.openai.com/v1/chat/completions';
 
-    if (lowerCaseMessage.includes('my name is')) {
-      const name = userMessage.split('my name is ')[1].trim();
-      return `Nice to meet you, ${name}! How can I assist you today?`;
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4',
+        messages: [{ role: 'user', content: userMessage }],
+        max_tokens: 150,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch response');
     }
 
-    return responses[lowerCaseMessage] || "I'm sorry, I didn't understand that.";
+    const data = await response.json();
+    return data.choices[0].message.content.trim();
   }
 
+  // Event listener for the "Send" button
   sendButton.addEventListener('click', sendMessage);
 
+  // Optional: Allow sending a message by pressing Enter
   userInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       sendMessage();
     }
   });
 
-  displayMessage("Bot: Hello! What can I call you?");
+  // Initial greeting
+  displayMessage('Bot: Hello! What can I assist you with today?');
 });
