@@ -15,6 +15,7 @@
         <li><a href="chatbot.html">Chatbot</a></li>
         <li><a href="art-studio.html">Art Studio</a></li>
         <li><a href="about.html">About Us</a></li>
+        <li id="auth-button"></li> <!-- Placeholder for Login/Logout button -->
       </ul>
     </nav>
   </header>
@@ -27,5 +28,31 @@
   <footer>
     <p>&copy; 2025 Prodiware. All rights reserved.</p>
   </footer>
+
+  <script>
+    // Function to check login status
+    function checkLoginStatus() {
+      const isLoggedIn = !!localStorage.getItem('userLoggedIn'); // Replace with actual auth check
+      const authButton = document.getElementById('auth-button');
+
+      if (isLoggedIn) {
+        // Show Logout button
+        authButton.innerHTML = '<a href="#" onclick="logout()">Logout</a>';
+      } else {
+        // Show Login button
+        authButton.innerHTML = '<a href="login.html">Login</a>';
+      }
+    }
+
+    // Function to log out
+    function logout() {
+      localStorage.removeItem('userLoggedIn'); // Remove login status
+      alert('You have been logged out!');
+      checkLoginStatus(); // Refresh the navigation bar
+    }
+
+    // Check login status on page load
+    document.addEventListener('DOMContentLoaded', checkLoginStatus);
+  </script>
 </body>
 </html>
