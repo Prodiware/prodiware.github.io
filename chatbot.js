@@ -1,6 +1,4 @@
-// Replace with your actual OpenAI API key
-const apiKey = "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"; // Replace with your OpenAI API key
-const endpoint = "https://api.openai.com/v1/chat/completions";
+const endpoint = 'http://localhost:5000/chat'; // Replace with your hosted API URL
 
 // Function to display messages in the chat area
 function displayMessage(message, isUser = false) {
@@ -12,33 +10,26 @@ function displayMessage(message, isUser = false) {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// Fetch AI response from OpenAI API
-async function fetchAIResponse(userMessage) {
+// Fetch AI response from your custom API
+async function fetchBotResponse(userMessage) {
   try {
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`, // Ensure correct API key is passed here
       },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo', // or 'gpt-4' if you're using GPT-4
-        messages: [{ role: 'user', content: userMessage }]
-      }),
+      body: JSON.stringify({ message: userMessage }),
     });
 
     if (!response.ok) {
-      // Error handling for API issues
-      const errorData = await response.json();
-      console.error("Error response:", errorData);
-      throw new Error(`Failed to fetch response: ${errorData.error.message}`);
+      throw new Error(`API responded with status ${response.status}`);
     }
 
     const data = await response.json();
-    return data.choices[0].message.content; // The AI's response
+    return data.response; // Bot response from the custom API
   } catch (error) {
-    console.error("Error fetching AI response:", error);
-    return "Sorry, I couldn't get a response at the moment.";
+    console.error('Error fetching bot response:', error);
+    return "Sorry, I couldn't process your request. Try again later.";
   }
 }
 
@@ -52,11 +43,11 @@ async function sendMessage() {
   displayMessage(`You: ${userMessage}`, true);
 
   // Fetch bot response asynchronously
-  const botResponse = await fetchAIResponse(userMessage);
+  const botResponse = await fetchBotResponse(userMessage);
 
   // Display bot response
   displayMessage(`Bot: ${botResponse}`);
-  
+
   // Clear the input field after sending the message
   document.getElementById('user-input').value = '';
 }
@@ -73,5 +64,5 @@ document.getElementById('user-input').addEventListener('keypress', (e) => {
 
 // Optional: Initial greeting when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-  displayMessage("Bot: Hello! What can I call you?");
+  displayMessage("Bot: Hello! I'm your assistant. What can I help you with?");
 });
