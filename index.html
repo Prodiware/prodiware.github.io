@@ -21,6 +21,18 @@
             background-color: #f3f4f6;
             transition: background-color 0.3s ease;
         }
+
+        .page-container {
+            transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+        }
+
+        /* Modal specific styles */
+        .modal {
+            display: none;
+        }
+        .modal.is-active {
+            display: flex;
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
@@ -93,6 +105,48 @@
         </main>
     </div>
 
+    <!-- Login/Signup Modal -->
+    <div id="auth-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl relative">
+            <button id="close-modal-btn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition-colors duration-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            
+            <h2 id="auth-title" class="text-3xl font-extrabold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Login</h2>
+            
+            <form id="auth-form" class="space-y-4">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email address</label>
+                    <input type="email" id="email" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-full shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="you@example.com">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="password" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-full shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="••••••••">
+                </div>
+                <div id="auth-error" class="text-red-500 text-sm text-center font-medium hidden"></div>
+
+                <button type="submit" id="auth-submit-btn" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-full shadow-lg text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition transform hover:scale-105">Login</button>
+                
+                <div class="mt-4 text-center">
+                    <button type="button" id="toggle-auth-btn" class="text-sm font-medium text-blue-600 hover:underline">Don't have an account? Sign Up</button>
+                </div>
+                
+                <div class="relative flex py-5 items-center">
+                    <div class="flex-grow border-t border-gray-300"></div>
+                    <span class="flex-shrink mx-4 text-gray-400">Or</span>
+                    <div class="flex-grow border-t border-gray-300"></div>
+                </div>
+
+                <button type="button" id="google-login-btn" class="w-full flex justify-center items-center space-x-2 py-3 px-4 border border-gray-300 rounded-full shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition transform hover:scale-105">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12.0001 2.99999C15.068 2.99999 17.6534 4.01529 19.5786 5.89781L16.2991 9.1764C15.2818 8.2434 13.7918 7.67498 12.0001 7.67498C9.52227 7.67498 7.46083 9.35824 6.7423 11.6667H2.86316V14.6667H6.7423C7.46083 16.9751 9.52227 18.6584 12.0001 18.6584C13.8821 18.6584 15.3721 17.9892 16.3894 17.0667L19.6738 20.3584C17.6186 22.2584 15.0287 23.3334 12.0001 23.3334C6.46738 23.3334 1.8335 18.868 1.8335 13.3334C1.8335 7.79878 6.46738 3.33331 12.0001 3.33331V2.99999ZM22.5 13.3334H2.5" stroke="#4A5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Sign in with Google</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"></script>
@@ -112,7 +166,15 @@
 
         // Import necessary Firebase functions
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+        import { 
+            getAuth, 
+            GoogleAuthProvider, 
+            signInWithPopup, 
+            signOut, 
+            onAuthStateChanged,
+            signInWithEmailAndPassword,
+            createUserWithEmailAndPassword
+        } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
         import { getFirestore, doc, setDoc } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
         // Initialize Firebase
@@ -126,6 +188,19 @@
         const navLinks = document.querySelectorAll('.nav-link');
         const pageContainers = document.querySelectorAll('.page-container');
         const homePage = document.getElementById('home-page');
+        const authModal = document.getElementById('auth-modal');
+        const closeBtn = document.getElementById('close-modal-btn');
+        const authTitle = document.getElementById('auth-title');
+        const authForm = document.getElementById('auth-form');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const authSubmitBtn = document.getElementById('auth-submit-btn');
+        const toggleAuthBtn = document.getElementById('toggle-auth-btn');
+        const googleLoginBtn = document.getElementById('google-login-btn');
+        const authError = document.getElementById('auth-error');
+
+        // --- State ---
+        let isSigningUp = false;
 
         // --- Functions ---
 
@@ -153,17 +228,44 @@
         };
 
         /**
+         * Shows the login/signup modal.
+         */
+        const showAuthModal = () => {
+            authModal.classList.add('is-active');
+        };
+
+        /**
+         * Hides the login/signup modal.
+         */
+        const hideAuthModal = () => {
+            authModal.classList.remove('is-active');
+            authError.classList.add('hidden');
+            authForm.reset(); // Reset form fields
+        };
+
+        /**
+         * Toggles between login and signup forms.
+         */
+        const toggleAuthMode = () => {
+            isSigningUp = !isSigningUp;
+            authTitle.textContent = isSigningUp ? 'Sign Up' : 'Login';
+            authSubmitBtn.textContent = isSigningUp ? 'Sign Up' : 'Login';
+            toggleAuthBtn.textContent = isSigningUp ? 'Already have an account? Login' : 'Don\'t have an account? Sign Up';
+            authError.classList.add('hidden');
+        };
+
+        /**
          * Handles user login with Google.
          */
-        const login = async () => {
+        const googleLogin = async () => {
             const provider = new GoogleAuthProvider();
             try {
                 await signInWithPopup(auth, provider);
+                hideAuthModal();
             } catch (error) {
-                console.error("Login failed:", error);
-                const message = `Login failed. Error: ${error.message}`;
-                // You could display a more user-friendly message in a dedicated element.
-                console.log(message);
+                console.error("Google Login failed:", error);
+                authError.textContent = `Google login failed: ${error.message}`;
+                authError.classList.remove('hidden');
             }
         };
 
@@ -188,8 +290,9 @@
                 greetingMessage.textContent = `Hello, ${displayName}!`;
                 authButton.textContent = 'Logout';
                 authButton.onclick = logout;
+                hideAuthModal();
 
-                // You can save user data to Firestore here if it's their first login
+                // Save user data to Firestore on first login
                 const userRef = doc(db, 'users', user.uid);
                 await setDoc(userRef, {
                     uid: user.uid,
@@ -203,7 +306,7 @@
                 // User is logged out
                 greetingMessage.textContent = 'Hello guest!';
                 authButton.textContent = 'Login';
-                authButton.onclick = login;
+                authButton.onclick = showAuthModal;
             }
             // Always show the home page on auth state change
             showPage('home-page');
@@ -219,7 +322,63 @@
                 showPage(pageId);
             });
         });
-        
+
+        // Close modal button
+        closeBtn.addEventListener('click', hideAuthModal);
+
+        // Toggle between login and signup
+        toggleAuthBtn.addEventListener('click', toggleAuthMode);
+
+        // Google login button
+        googleLoginBtn.addEventListener('click', googleLogin);
+
+        // Email/Password form submission
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            
+            if (!email || !password) {
+                authError.textContent = 'Please enter an email and password.';
+                authError.classList.remove('hidden');
+                return;
+            }
+            
+            authError.classList.add('hidden');
+            
+            try {
+                if (isSigningUp) {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                } else {
+                    await signInWithEmailAndPassword(auth, email, password);
+                }
+                // Auth state change listener will handle UI update
+            } catch (error) {
+                console.error("Authentication failed:", error);
+                let errorMessage = 'An unknown error occurred.';
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                    case 'auth/wrong-password':
+                    case 'auth/invalid-credential':
+                        errorMessage = 'Invalid email or password.';
+                        break;
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'Email already in use. Please login or use a different email.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'Password must be at least 6 characters long.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address.';
+                        break;
+                    default:
+                        errorMessage = `Error: ${error.message}`;
+                }
+                authError.textContent = errorMessage;
+                authError.classList.remove('hidden');
+            }
+        });
+
     </script>
 </body>
 </html>
