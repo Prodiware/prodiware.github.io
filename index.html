@@ -115,6 +115,10 @@
             <h2 id="auth-title" class="text-3xl font-extrabold text-center mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Login</h2>
             
             <form id="auth-form" class="space-y-4">
+                <div id="username-field" class="hidden">
+                    <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                    <input type="text" id="username" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-full shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Choose a username">
+                </div>
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700">Email address</label>
                     <input type="email" id="email" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-full shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="you@example.com">
@@ -174,7 +178,8 @@
             signOut, 
             onAuthStateChanged,
             signInWithEmailAndPassword,
-            createUserWithEmailAndPassword
+            createUserWithEmailAndPassword,
+            updateProfile // Import updateProfile to set display name
         } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
         import { getFirestore, doc, setDoc } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
@@ -193,6 +198,8 @@
         const closeBtn = document.getElementById('close-modal-btn');
         const authTitle = document.getElementById('auth-title');
         const authForm = document.getElementById('auth-form');
+        const usernameField = document.getElementById('username-field');
+        const usernameInput = document.getElementById('username');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
         const authSubmitBtn = document.getElementById('auth-submit-btn');
@@ -253,6 +260,12 @@
             authSubmitBtn.textContent = isSigningUp ? 'Sign Up' : 'Login';
             toggleAuthBtn.textContent = isSigningUp ? 'Already have an account? Login' : 'Don\'t have an account? Sign Up';
             authError.classList.add('hidden');
+
+            if (isSigningUp) {
+                usernameField.classList.remove('hidden');
+            } else {
+                usernameField.classList.add('hidden');
+            }
         };
 
         /**
@@ -338,9 +351,10 @@
             e.preventDefault();
             const email = emailInput.value;
             const password = passwordInput.value;
+            const username = usernameInput.value;
             
-            if (!email || !password) {
-                authError.textContent = 'Please enter an email and password.';
+            if (!email || !password || (isSigningUp && !username)) {
+                authError.textContent = 'Please enter all fields.';
                 authError.classList.remove('hidden');
                 return;
             }
@@ -349,7 +363,11 @@
             
             try {
                 if (isSigningUp) {
-                    await createUserWithEmailAndPassword(auth, email, password);
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    // After creating the user, update their profile with the username
+                    await updateProfile(userCredential.user, {
+                        displayName: username
+                    });
                 } else {
                     await signInWithEmailAndPassword(auth, email, password);
                 }
