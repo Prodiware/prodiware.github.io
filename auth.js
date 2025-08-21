@@ -81,6 +81,7 @@ const showPage = (pageId) => {
  * Shows the login/signup modal.
  */
 const showAuthModal = () => {
+    console.log("Showing auth modal.");
     authModal.classList.add('is-active');
 };
 
@@ -88,6 +89,7 @@ const showAuthModal = () => {
  * Hides the login/signup modal.
  */
 const hideAuthModal = () => {
+    console.log("Hiding auth modal.");
     authModal.classList.remove('is-active');
     authError.classList.add('hidden');
     authForm.reset();
@@ -117,6 +119,7 @@ const googleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
         await signInWithPopup(auth, provider);
+        console.log("Google sign-in successful. Hiding modal.");
         hideAuthModal();
     } catch (error) {
         console.error("Google Login failed:", error);
@@ -141,22 +144,31 @@ const logout = async () => {
  */
 onAuthStateChanged(auth, async (user) => {
     if (user) {
+        console.log("Auth state changed: User is signed in.");
         const displayName = user.displayName || user.email.split('@')[0];
         greetingMessage.textContent = `Hello, ${displayName}!`;
         authButton.textContent = 'Logout';
         authButton.onclick = logout;
+        
+        // Hide modal on successful login
         hideAuthModal();
 
-        const userRef = doc(db, 'users', user.uid);
-        await setDoc(userRef, {
-            uid: user.uid,
-            displayName: user.displayName,
-            email: user.email,
-            photoURL: user.photoURL,
-            lastLogin: new Date()
-        }, { merge: true });
+        try {
+            const userRef = doc(db, 'users', user.uid);
+            await setDoc(userRef, {
+                uid: user.uid,
+                displayName: user.displayName,
+                email: user.email,
+                photoURL: user.photoURL,
+                lastLogin: new Date()
+            }, { merge: true });
+        } catch (error) {
+            // Log any database errors but don't prevent the UI from updating
+            console.error("Error setting user document:", error);
+        }
 
     } else {
+        console.log("Auth state changed: User is signed out.");
         greetingMessage.textContent = 'Hello guest!';
         authButton.textContent = 'Login';
         authButton.onclick = showAuthModal;
@@ -176,7 +188,10 @@ navLinks.forEach(link => {
 });
 
 // Close modal button
-closeBtn.addEventListener('click', hideAuthModal);
+if (closeBtn) {
+    closeBtn.addEventListener('click', hideAuthModal);
+}
+
 
 // Toggle between login and signup
 toggleAuthBtn.addEventListener('click', toggleAuthMode);
@@ -208,6 +223,8 @@ authForm.addEventListener('submit', async (e) => {
         } else {
             await signInWithEmailAndPassword(auth, email, password);
         }
+        console.log("Email/Password sign-in successful. Hiding modal.");
+        hideAuthModal();
     } catch (error) {
         console.error("Authentication failed:", error);
         let errorMessage = 'An unknown error occurred.';
