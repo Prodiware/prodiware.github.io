@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyclone World - Server List</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .server-list-container {
+            width: 80%;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #server-list {
+            list-style: none;
+            padding: 0;
+        }
+        .server-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .server-name {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .player-count {
+            color: #555;
+        }
+        .join-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .join-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="server-list-container">
+        <h1>Select a Server</h1>
+        <ul id="server-list">
+            </ul>
+        <p id="status-message" style="text-align: center; margin-top: 20px;"></p>
+    </div>
+
+    <script src="js/game.js"></script>
+</body>
+</html>
